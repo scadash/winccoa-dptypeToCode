@@ -1,0 +1,352 @@
+V 14
+3
+LANG:10011 0 
+LANG:10005 0 
+LANG:10027 0 
+PANEL,-1 -1 774 782 N "_3DFace" 0
+E E E E E 1 -1 -1 0  40 40
+""0  1
+E "ExportCode(string sType)
+{
+  dyn_dyn_string dds;
+  dyn_dyn_int ddi;
+  string s;
+  dyn_string dsSplit;
+  dpTypeGet(sType,dds,ddi);
+  s = s + \"// Code for creation of dptype \"+sType+\"\\r\\n\";
+  s = s + \"int n;\\r\\n\";
+  s = s + \"dyn_dyn_string xxdepes;\\r\\n\";
+  s = s + \"dyn_dyn_int xxdepei;\\r\\n\";
+  s = s+ \"\\r\\n\";
+  for( int i = 1;i<=dynlen(dds);i++ )
+  {
+    s = s + \"xxdepes[\"+i+\"] = makeDynString (\\\"\";
+    dsSplit = strsplit(dds[i],\"|\");
+    dsSplit = cleanDynString(dsSplit);
+    for( int j = 1;j<=dynlen(dsSplit);j++ )
+    {
+      s = s + dsSplit[j];
+      if (j != dynlen(dsSplit)) s = s + \"\\\",\\\"\";
+      else s = s + \"\\\"\";
+    }
+
+    s = s + \");\\r\\n\";
+  }
+  s = s+ \"\\r\\n\";
+  for( int i = 1;i<=dynlen(ddi);i++ )
+  {
+    s = s + \"xxdepei[\"+i+\"] = makeDynInt (\";
+
+    // insert cleandynstring here
+    for( int j = 1;j<=dynlen(ddi[i]);j++ )
+    {
+      s = s + ddi[i][j];
+      if (j != dynlen(ddi[i])) s = s + \",\";
+      else s = s + \"\";
+    }
+
+    s = s + \");\\r\\n\";
+  }
+  s = s + \"\\r\\n\";
+  s = s + \"dyn_string dsTypes;\"+ \"\\r\\n\";
+  s = s + \"dsTypes = dpTypes(xxdepes[1][1]);\"+ \"\\r\\n\";
+  s = s + \"// is existing\"+ \"\\r\\n\";
+  s = s + \"if (dynlen(dsTypes) < 1)\"+ \"\\r\\n\";
+  s = s + \"{\"+ \"\\r\\n\";
+  s = s + \"  //Create the Datapointtype\"+ \"\\r\\n\";
+  s = s + \"  n = dpTypeCreate(xxdepes,xxdepei);\"+ \"\\r\\n\";
+  s = s + \"}\";
+
+
+
+
+  //s = s+ \"//Create the Datapointtype\\r\\n\";
+  //s = s+ \"n = dpTypeCreate(xxdepes,xxdepei);\\r\\n\";
+
+  TEXT_EDIT1.text = s;
+}
+
+
+// removes leading and tailing spaces from a string
+
+string cleanString(string stringToClean)
+{
+  string sTemp;
+
+  sTemp = strltrim(stringToClean);
+  sTemp = strrtrim(sTemp);
+
+  return sTemp;
+}
+
+// removes leading and tailing spaces from all strings in dyn string
+
+dyn_string cleanDynString(dyn_string dynStringToClean)
+{
+  string sTemp;
+  dyn_string dsOut;
+
+  for (int i = 1; i<=dynlen(dynStringToClean);i++)
+  {
+    sTemp = strltrim(dynStringToClean[i]);
+    sTemp = strrtrim(sTemp);
+    dynAppend (dsOut,sTemp);
+  }
+
+  return dsOut;
+}
+
+// informs the user about something with a warning panel
+// topic - the title
+// text  - the information to show
+
+void showWarning(string topic , string text)
+{
+          ChildPanelOnRelativ(\"vision/MessageWarning\",topic,makeDynString(\"$1:\" +text),0, 0);
+
+          return;
+}" 0
+ 3
+"CBRef" "1"
+"EClose" E
+"dpi" "120"
+0 0 0
+""
+DISPLAY_LAYER, 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0
+LAYER, 0 
+3
+LANG:10011 0 
+LANG:10005 0 
+LANG:10027 0 
+29 0
+"TEXT_EDIT1"
+""
+1 32 150 E E E 1 E 1 E N "_WindowText" E N "_Window" E E
+ E E
+0 0 0 0 0 0
+E E E
+0
+3
+LANG:10011 0 
+LANG:10005 0 
+LANG:10027 0 
+
+1
+"layoutAlignment" "AlignNone"
+3
+LANG:10011 26 Arial,-1,13,5,50,0,0,0,0,0
+LANG:10005 26 Arial,-1,13,5,50,0,0,0,0,0
+LANG:10027 26 Arial,-1,13,5,50,0,0,0,0,0
+0  32 150 742 710
+15 PVSS.TextEdit.1
+0
+E22 1
+"COMBO_BOX1"
+""
+1 32 97.00000000000007 E E E 1 E 1 E N "_WindowText" E N "_Window" E E
+ E E
+1 0 0 0 0 0
+E E E
+0
+3
+LANG:10011 0 
+LANG:10005 0 
+LANG:10027 0 
+
+1
+"layoutAlignment" "AlignNone"
+3
+LANG:10011 26 Arial,-1,13,5,50,0,0,0,0,0
+LANG:10005 26 Arial,-1,13,5,50,0,0,0,0,0
+LANG:10027 26 Arial,-1,13,5,50,0,0,0,0,0
+0  30 87.00000000000007 744 121.0000000000001
+0
+
+"main()
+{
+  this.items(dpTypes());
+
+}
+" 0
+
+"main()
+{
+  ExportCode(this.selectedText);
+}" 0
+
+E
+ 1 0
+13 5
+"PUSH_BUTTON2"
+""
+1 702 741.0000000000001 E E E 1 E 1 E N "_ButtonText" E N "_Button" E E
+ E E
+5 0 0 0 0 0
+E E E
+8
+3
+LANG:10011 0 
+LANG:10005 0 
+LANG:10027 0 
+
+1
+"layoutAlignment" "AlignNone"
+3
+LANG:10011 26 Arial,-1,13,5,50,0,0,0,0,0
+LANG:10005 26 Arial,-1,13,5,50,0,0,0,0,0
+LANG:10027 26 Arial,-1,13,5,50,0,0,0,0,0
+0  700 726.0000000000001 744 770.0000000000001
+
+P 
+4294967295
+"pictures/exit_24.png"
+3
+LANG:10011 12 PUSH_BUTTON2
+LANG:10005 12 PUSH_BUTTON2
+LANG:10027 12 PUSH_BUTTON2
+"// SimpleCtrlScriptStart {valid}
+main()
+{
+  EP_panelOff();
+}
+
+void EP_panelOff()
+{
+  PanelOff();
+}
+
+// SimpleCtrlScript {EP_panelOff}
+// Function {PanelOff}
+// Panel {}
+// Module {}
+// SimpleCtrlScriptEnd {EP_panelOff}
+" 0
+ E E E
+2 7
+"PRIMITIVE_TEXT2"
+""
+1 154 23.50000000000013 E E E 1 E 1 E N "_WindowText" E N "_Window" E E
+ E E
+7 0 0 0 0 0
+E E E
+0
+3
+LANG:10011 0 
+LANG:10005 0 
+LANG:10027 0 
+
+4
+"layoutAlignment" "AlignNone"
+"dashclr"N "_Transparent"
+"antiAliased" "0"
+"transformable" "0"
+E E 0 1 3 2 1 E U  0 E 154 23.50000000000013 654 83.50000000000013
+0 2 2 "0s" 0 0 0 64 0 0  154 23.50000000000013 1
+3
+LANG:10011 35 Arial,-1,30,5,50,0,0,0,0,0,Standard
+LANG:10005 26 Arial,-1,13,5,50,0,0,0,0,0
+LANG:10027 26 Arial,-1,13,5,50,0,0,0,0,0
+0 3
+LANG:10011 29 Create  CTRL Code from DPType
+LANG:10005 29 Create  CTRL Code from DPType
+LANG:10027 29 Create  CTRL Code from DPType
+2 9
+"PRIMITIVE_TEXT4"
+""
+1 34 27.0000000000001 E E E 1 E 1 E N "_WindowText" E N "_Window" E E
+ E E
+9 0 0 0 0 0
+E E E
+0
+3
+LANG:10011 0 
+LANG:10005 0 
+LANG:10027 0 
+
+4
+"layoutAlignment" "AlignNone"
+"dashclr"N "_Transparent"
+"antiAliased" "0"
+"transformable" "0"
+E E 0 1 3 2 1 E 0.1150793650793651 0 0.5468749999999989 29.31746031746032 54.32812500000013 0 E 34 27.0000000000001 534 87.00000000000004
+0 2 2 "0s" 0 0 0 64 0 0  34 27.0000000000001 1
+3
+LANG:10011 35 Arial,-1,17,5,50,0,0,0,0,0,Standard
+LANG:10005 26 Arial,-1,13,5,50,0,0,0,0,0
+LANG:10027 26 Arial,-1,13,5,50,0,0,0,0,0
+0 3
+LANG:10011 4 Type
+LANG:10005 4 Type
+LANG:10027 4 Type
+2 10
+"PRIMITIVE_TEXT5"
+""
+1 34 27.0000000000001 E E E 1 E 1 E N "_WindowText" E N "_Window" E E
+ E E
+10 0 0 0 0 0
+E E E
+0
+3
+LANG:10011 0 
+LANG:10005 0 
+LANG:10027 0 
+
+4
+"layoutAlignment" "AlignNone"
+"dashclr"N "_Transparent"
+"antiAliased" "0"
+"transformable" "0"
+E E 0 1 3 2 1 E 0.1150793650793651 0 0.5468749999999989 29.08730158730159 116.234375 0 E 34 27.0000000000001 534 87.00000000000004
+0 2 2 "0s" 0 0 0 64 0 0  34 27.0000000000001 1
+3
+LANG:10011 35 Arial,-1,17,5,50,0,0,0,0,0,Standard
+LANG:10005 26 Arial,-1,13,5,50,0,0,0,0,0
+LANG:10027 26 Arial,-1,13,5,50,0,0,0,0,0
+0 3
+LANG:10011 4 Code
+LANG:10005 4 Code
+LANG:10027 4 Code
+0
+LAYER, 1 
+3
+LANG:10011 0 
+LANG:10005 0 
+LANG:10027 0 
+0
+LAYER, 2 
+3
+LANG:10011 0 
+LANG:10005 0 
+LANG:10027 0 
+0
+LAYER, 3 
+3
+LANG:10011 0 
+LANG:10005 0 
+LANG:10027 0 
+0
+LAYER, 4 
+3
+LANG:10011 0 
+LANG:10005 0 
+LANG:10027 0 
+0
+LAYER, 5 
+3
+LANG:10011 0 
+LANG:10005 0 
+LANG:10027 0 
+0
+LAYER, 6 
+3
+LANG:10011 0 
+LANG:10005 0 
+LANG:10027 0 
+0
+LAYER, 7 
+3
+LANG:10011 0 
+LANG:10005 0 
+LANG:10027 0 
+0
+0
