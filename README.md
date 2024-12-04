@@ -13,4 +13,6 @@ Version: Almost version independant.
 
 Comment: Comments Welcome
 
-BL Dec/2022
+Changes: Numeric values for Data Types  were exchanged with the Symbolic Constants  provided by WinCC OA   
+
+BL Dec/2024
