@@ -1,67 +1,91 @@
 V 14
-3
+9
+LANG:10000 0 
+LANG:10001 0 
+LANG:10010 0 
+LANG:10009 0 
+LANG:10007 0 
+LANG:10004 0 
+LANG:10027 0 
 LANG:10011 0 
 LANG:10005 0 
-LANG:10027 0 
-PANEL,-1 -1 774 782 N "_3DFace" 0
+PANEL,-1 -1 774 781 N "_3DFace" 0
 E E E E E 1 -1 -1 0  40 40
 ""0  1
 E "ExportCode(string sType)
 {
+
+  mapping typeMap = convertTypeIdToString();
   dyn_dyn_string dds;
   dyn_dyn_int ddi;
   string s;
   dyn_string dsSplit;
-  dpTypeGet(sType,dds,ddi);
-  s = s + \"// Code for creation of dptype \"+sType+\"\\r\\n\";
+  dpTypeGet(sType, dds, ddi);
+  s = s + \"// Code for creation of dptype \" + sType + \"\\r\\n\";
   s = s + \"int n;\\r\\n\";
-  s = s + \"dyn_dyn_string xxdepes;\\r\\n\";
-  s = s + \"dyn_dyn_int xxdepei;\\r\\n\";
-  s = s+ \"\\r\\n\";
-  for( int i = 1;i<=dynlen(dds);i++ )
+  s = s + \"dyn_dyn_string dpElementNames;\\r\\n\";
+  s = s + \"dyn_dyn_int dpElementTypes;\\r\\n\";
+  s = s + \"\\r\\n\";
+
+  for (int i = 1; i <= dynlen(dds); i++)
   {
-    s = s + \"xxdepes[\"+i+\"] = makeDynString (\\\"\";
-    dsSplit = strsplit(dds[i],\"|\");
+    if (i < 10)
+      s = s + \"dpElementNames[\" + i + \"]  = makeDynString (\\\"\";
+    else
+      s = s + \"dpElementNames[\" + i + \"] = makeDynString (\\\"\";
+
+    dsSplit = strsplit(dds[i], \"|\");
     dsSplit = cleanDynString(dsSplit);
-    for( int j = 1;j<=dynlen(dsSplit);j++ )
+
+    for (int j = 1; j <= dynlen(dsSplit); j++)
     {
+
       s = s + dsSplit[j];
-      if (j != dynlen(dsSplit)) s = s + \"\\\",\\\"\";
+
+      if (j != dynlen(dsSplit)) s = s + \"\\\", \\\"\";
       else s = s + \"\\\"\";
     }
 
     s = s + \");\\r\\n\";
   }
-  s = s+ \"\\r\\n\";
-  for( int i = 1;i<=dynlen(ddi);i++ )
+
+  s = s + \"\\r\\n\";
+
+  for (int i = 1; i <= dynlen(ddi); i++)
   {
-    s = s + \"xxdepei[\"+i+\"] = makeDynInt (\";
+    if (i < 10)
+      s = s + \"dpElementTypes[\" + i + \"]  = makeDynInt (\";
+    else
+      s = s + \"dpElementTypes[\" + i + \"] = makeDynInt (\";
 
     // insert cleandynstring here
-    for( int j = 1;j<=dynlen(ddi[i]);j++ )
+    for (int j = 1; j <= dynlen(ddi[i]); j++)
     {
-      s = s + ddi[i][j];
-      if (j != dynlen(ddi[i])) s = s + \",\";
+
+      s = s + typeMap[ddi[i][j]];
+
+      if (j != dynlen(ddi[i])) s = s + \", \";
       else s = s + \"\";
     }
 
     s = s + \");\\r\\n\";
   }
+
   s = s + \"\\r\\n\";
-  s = s + \"dyn_string dsTypes;\"+ \"\\r\\n\";
-  s = s + \"dsTypes = dpTypes(xxdepes[1][1]);\"+ \"\\r\\n\";
-  s = s + \"// is existing\"+ \"\\r\\n\";
-  s = s + \"if (dynlen(dsTypes) < 1)\"+ \"\\r\\n\";
-  s = s + \"{\"+ \"\\r\\n\";
-  s = s + \"  //Create the Datapointtype\"+ \"\\r\\n\";
-  s = s + \"  n = dpTypeCreate(xxdepes,xxdepei);\"+ \"\\r\\n\";
+  s = s + \"dyn_string dsTypes;\" + \"\\r\\n\";
+  s = s + \"dsTypes = dpTypes(dpElementNames[1][1]);\" + \"\\r\\n\";
+  s = s + \"// is existing\" + \"\\r\\n\";
+  s = s + \"if (dynlen(dsTypes) < 1)\" + \"\\r\\n\";
+  s = s + \"{\" + \"\\r\\n\";
+  s = s + \"  //Create the Datapointtype\" + \"\\r\\n\";
+  s = s + \"  n = dpTypeCreate(dpElementNames, dpElementTypes);\" + \"\\r\\n\";
   s = s + \"}\";
 
 
 
 
   //s = s+ \"//Create the Datapointtype\\r\\n\";
-  //s = s+ \"n = dpTypeCreate(xxdepes,xxdepei);\\r\\n\";
+  //s = s+ \"n = dpTypeCreate(dpElementNames,dpElementTypes);\\r\\n\";
 
   TEXT_EDIT1.text = s;
 }
@@ -86,11 +110,11 @@ dyn_string cleanDynString(dyn_string dynStringToClean)
   string sTemp;
   dyn_string dsOut;
 
-  for (int i = 1; i<=dynlen(dynStringToClean);i++)
+  for (int i = 1; i <= dynlen(dynStringToClean); i++)
   {
     sTemp = strltrim(dynStringToClean[i]);
     sTemp = strrtrim(sTemp);
-    dynAppend (dsOut,sTemp);
+    dynAppend(dsOut, sTemp);
   }
 
   return dsOut;
@@ -100,24 +124,97 @@ dyn_string cleanDynString(dyn_string dynStringToClean)
 // topic - the title
 // text  - the information to show
 
-void showWarning(string topic , string text)
+void showWarning(string topic, string text)
 {
-          ChildPanelOnRelativ(\"vision/MessageWarning\",topic,makeDynString(\"$1:\" +text),0, 0);
+  ChildPanelOnRelativ(\"vision/MessageWarning\", topic, makeDynString(\"$1:\" + text), 0, 0);
 
-          return;
-}" 0
- 3
+  return;
+}
+
+
+mapping convertTypeIdToString()
+{
+  mapping typeMap;
+
+  typeMap[0] = \"0\";
+  typeMap[24] = \"DPEL_BIT32\";         //bit pattern
+  typeMap[16] = \"DPEL_BIT32_STRUCT\";         //bit pattern structure
+  typeMap[50] = \"DPEL_BIT64\";         //bit pattern
+  typeMap[52] = \"DPEL_BIT64_STRUCT\";         //bit pattern structure
+  typeMap[46] = \"DPEL_BLOB\";         //blob (binary large object)
+  typeMap[47] = \"DPEL_BLOB_STRUCT\";         //blob structure
+  typeMap[23] = \"DPEL_BOOL\";         //bit
+  typeMap[15] = \"DPEL_BOOL_STRUCT\";         //bit structure
+  typeMap[19] = \"DPEL_CHAR\";         //character
+  typeMap[11] = \"DPEL_CHAR_STRUCT\";         //character structure
+  typeMap[27] = \"DPEL_DPID\";         //DP-Identifier
+  typeMap[39] = \"DPEL_DPID_STRUCT\";         //label structure
+  typeMap[8] = \"DPEL_DYN_BIT32\";         //dynamic array for bit pattern
+  typeMap[35] = \"DPEL_DYN_BIT32_STRUCT\";         //dynamic bit-pattern array structure
+  typeMap[51] = \"DPEL_DYN_BIT64\";         //dynamic array for bit pattern
+  typeMap[53] = \"DPEL_DYN_BIT64_STRUCTURE\";         //dynamic bit pattern array structure
+  typeMap[48] = \"DPEL_DYN_BLOB\";         //dynamic blob
+  typeMap[49] = \"DPEL_DYN_BLOB_STRUCT\";         //dynamic blob structure
+  typeMap[7] = \"DPEL_DYN_BOOL\";         //dynamic bit array
+  typeMap[34] = \"DPEL_DYN_BOOL_STRUCT\";         //dynamic bit array structure
+  typeMap[3] = \"DPEL_DYN_CHAR\";         //dynamic character array
+  typeMap[30] = \"DPEL_DYN_CHAR_STRUCT\";         //dynamic character array structure
+  typeMap[29] = \"DPEL_DYN_DPID\";         //dynamic DP-Identifier array
+  typeMap[38] = \"DPEL_DYN_DPID_STRUCT\";         //dynamic DP-Identifier array structure
+  typeMap[6] = \"DPEL_DYN_FLOAT\";         //dynamic number array for floating decimal point
+  typeMap[33] = \"DPEL_DYN_FLOAT_STRUCT\";         //dynamic number structure for floating decimal point
+  typeMap[5] = \"DPEL_DYN_INT\";         //dynamic integer array
+  typeMap[32] = \"DPEL_DYN_INT_STRUCT\";         //dynamic integer structure
+  typeMap[44] = \"DPEL_DYN_LANGSTRING\";         //multilingual dynamic text array
+  typeMap[45] = \"DPEL_DYN_LANGSTRING_STRUCT\";         //multilingual dynamic text structure
+  typeMap[9] = \"DPEL_DYN_STRING\";         //dynamic text array
+  typeMap[36] = \"DPEL_DYN_STRING_STRUCT\";         //dynamic text-array structure
+  typeMap[10] = \"DPEL_DYN_TIME\";         //dynamic time array
+  typeMap[37] = \"DPEL_DYN_TIME_STRUCT\";         //dynamic time array structure
+  typeMap[4] = \"DPEL_DYN_UINT\";         //dynamic array of positive whole numbers
+  typeMap[31] = \"DPEL_DYN_UINT_STRUCT\";         //dynamic array of positive integers
+  typeMap[55] = \"DPEL_DYN_LONG\";         //dynamic array of integer values (64 bit)
+  typeMap[57] = \"DPEL_DYN_LONG_STRUCT\";         //dynamic structure of integer values (64 bit)
+  typeMap[59] = \"DPEL_DYN_ULONG\";         //dynamic array of positive integer values (64 bit)
+  typeMap[61] = \"DPEL_DYN_ULONG_STRUCT\";         //dynamic structure of positive integer values (64 bit)
+  typeMap[22] = \"DPEL_FLOAT\";         //floating point system
+  typeMap[14] = \"DPEL_FLOAT_STRUCT\";         //number structure for floating decimal point
+  typeMap[21] = \"DPEL_INT\";         //integer
+  typeMap[13] = \"DPEL_INT_STRUCT\";         //integer structure
+  typeMap[42] = \"DPEL_LANGSTRING\";         //description
+  typeMap[43] = \"DPEL_LANGSTRING_STRUCT\";         //description structure
+  typeMap[54] = \"DPEL_LONG\";         //Integer value (64 bit)
+  typeMap[56] = \"DPEL_LONG_STRUCT\";         //structure of integer values (64 bit)
+  typeMap[25] = \"DPEL_STRING\";         //text
+  typeMap[17] = \"DPEL_STRING_STRUCT\";         //text structure
+  typeMap[1] = \"DPEL_STRUCT\";         //structure
+  typeMap[26] = \"DPEL_TIME\";         //time
+  typeMap[18] = \"DPEL_TIME_STRUCT\";         //time structure
+  typeMap[41] = \"DPEL_TYPEREF\";         //data point type reference
+  typeMap[20] = \"DPEL_UINT\";         //unsigned integer
+  typeMap[12] = \"DPEL_UINT_STRUCT\";         //structure of unsigned integers
+  typeMap[58] = \"DPEL_ULONG\";         //Positive integer value (64 bit)
+  typeMap[60] = \"DPEL_ULONG_STRUCT\";         //structure of positive integer values (64 bit)
+
+  return typeMap;
+}
+" 0
+ 4
 "CBRef" "1"
 "EClose" E
 "dpi" "120"
+"pdpi" "120"
 0 0 0
 ""
 DISPLAY_LAYER, 1 0 1 0 1 0 1 0 1 0 1 0 1 0 1 0
 LAYER, 0 
-3
-LANG:10011 0 
-LANG:10005 0 
-LANG:10027 0 
+6
+LANG:10000 0 
+LANG:10001 0 
+LANG:10010 0 
+LANG:10009 0 
+LANG:10007 0 
+LANG:10004 0 
 29 0
 "TEXT_EDIT1"
 ""
@@ -126,17 +223,29 @@ LANG:10027 0
 0 0 0 0 0 0
 E E E
 0
-3
+9
+LANG:10000 0 
+LANG:10001 0 
+LANG:10010 0 
+LANG:10009 0 
+LANG:10007 0 
+LANG:10004 0 
+LANG:10027 0 
 LANG:10011 0 
 LANG:10005 0 
-LANG:10027 0 
 
 1
 "layoutAlignment" "AlignNone"
-3
+9
+LANG:10000 26 Arial,-1,13,5,50,0,0,0,0,0
+LANG:10001 40 Courier New,-1,13,5,50,0,0,0,0,0,Regular
+LANG:10010 40 Courier New,-1,13,5,50,0,0,0,0,0,Regular
+LANG:10009 40 Courier New,-1,13,5,50,0,0,0,0,0,Regular
+LANG:10007 40 Courier New,-1,13,5,50,0,0,0,0,0,Regular
+LANG:10004 40 Courier New,-1,13,5,50,0,0,0,0,0,Regular
+LANG:10027 26 Arial,-1,13,5,50,0,0,0,0,0
 LANG:10011 26 Arial,-1,13,5,50,0,0,0,0,0
 LANG:10005 26 Arial,-1,13,5,50,0,0,0,0,0
-LANG:10027 26 Arial,-1,13,5,50,0,0,0,0,0
 0  32 150 742 710
 15 PVSS.TextEdit.1
 0
@@ -148,17 +257,29 @@ E22 1
 1 0 0 0 0 0
 E E E
 0
-3
+9
+LANG:10000 0 
+LANG:10001 0 
+LANG:10010 0 
+LANG:10009 0 
+LANG:10007 0 
+LANG:10004 0 
+LANG:10027 0 
 LANG:10011 0 
 LANG:10005 0 
-LANG:10027 0 
 
 1
 "layoutAlignment" "AlignNone"
-3
+9
+LANG:10000 26 Arial,-1,13,5,50,0,0,0,0,0
+LANG:10001 26 Arial,-1,13,5,50,0,0,0,0,0
+LANG:10010 26 Arial,-1,13,5,50,0,0,0,0,0
+LANG:10009 26 Arial,-1,13,5,50,0,0,0,0,0
+LANG:10007 26 Arial,-1,13,5,50,0,0,0,0,0
+LANG:10004 26 Arial,-1,13,5,50,0,0,0,0,0
+LANG:10027 26 Arial,-1,13,5,50,0,0,0,0,0
 LANG:10011 26 Arial,-1,13,5,50,0,0,0,0,0
 LANG:10005 26 Arial,-1,13,5,50,0,0,0,0,0
-LANG:10027 26 Arial,-1,13,5,50,0,0,0,0,0
 0  30 87.00000000000007 744 121.0000000000001
 0
 
@@ -184,26 +305,44 @@ E
 5 0 0 0 0 0
 E E E
 8
-3
+9
+LANG:10000 0 
+LANG:10001 0 
+LANG:10010 0 
+LANG:10009 0 
+LANG:10007 0 
+LANG:10004 0 
+LANG:10027 0 
 LANG:10011 0 
 LANG:10005 0 
-LANG:10027 0 
 
 1
 "layoutAlignment" "AlignNone"
-3
+9
+LANG:10000 26 Arial,-1,13,5,50,0,0,0,0,0
+LANG:10001 26 Arial,-1,13,5,50,0,0,0,0,0
+LANG:10010 26 Arial,-1,13,5,50,0,0,0,0,0
+LANG:10009 26 Arial,-1,13,5,50,0,0,0,0,0
+LANG:10007 26 Arial,-1,13,5,50,0,0,0,0,0
+LANG:10004 26 Arial,-1,13,5,50,0,0,0,0,0
+LANG:10027 26 Arial,-1,13,5,50,0,0,0,0,0
 LANG:10011 26 Arial,-1,13,5,50,0,0,0,0,0
 LANG:10005 26 Arial,-1,13,5,50,0,0,0,0,0
-LANG:10027 26 Arial,-1,13,5,50,0,0,0,0,0
 0  700 726.0000000000001 744 770.0000000000001
 
 P 
 4294967295
 "pictures/exit_24.png"
-3
+9
+LANG:10000 12 PUSH_BUTTON2
+LANG:10001 12 PUSH_BUTTON2
+LANG:10010 12 PUSH_BUTTON2
+LANG:10009 12 PUSH_BUTTON2
+LANG:10007 12 PUSH_BUTTON2
+LANG:10004 12 PUSH_BUTTON2
+LANG:10027 12 PUSH_BUTTON2
 LANG:10011 12 PUSH_BUTTON2
 LANG:10005 12 PUSH_BUTTON2
-LANG:10027 12 PUSH_BUTTON2
 "// SimpleCtrlScriptStart {valid}
 main()
 {
@@ -225,31 +364,49 @@ void EP_panelOff()
 2 7
 "PRIMITIVE_TEXT2"
 ""
-1 154 23.50000000000013 E E E 1 E 1 E N "_WindowText" E N "_Window" E E
+1 155 23.00000000000023 E E E 1 E 1 E N "_WindowText" E N "_Window" E E
  E E
 7 0 0 0 0 0
 E E E
 0
-3
+9
+LANG:10000 0 
+LANG:10001 0 
+LANG:10010 0 
+LANG:10009 0 
+LANG:10007 0 
+LANG:10004 0 
+LANG:10027 0 
 LANG:10011 0 
 LANG:10005 0 
-LANG:10027 0 
 
 4
 "layoutAlignment" "AlignNone"
 "dashclr"N "_Transparent"
 "antiAliased" "0"
 "transformable" "0"
-E E 0 1 3 2 1 E U  0 E 154 23.50000000000013 654 83.50000000000013
-0 2 2 "0s" 0 0 0 64 0 0  154 23.50000000000013 1
-3
+E E 0 1 3 2 1 E U  0 E 155 23.00000000000023 655 83.00000000000023
+0 2 2 "0s" 0 0 0 64 0 0  155 23.00000000000023 1
+9
+LANG:10000 35 Arial,-1,30,5,50,0,0,0,0,0,Standard
+LANG:10001 35 Arial,-1,30,5,50,0,0,0,0,0,Standard
+LANG:10010 35 Arial,-1,30,5,50,0,0,0,0,0,Standard
+LANG:10009 35 Arial,-1,30,5,50,0,0,0,0,0,Standard
+LANG:10007 35 Arial,-1,30,5,50,0,0,0,0,0,Standard
+LANG:10004 35 Arial,-1,30,5,50,0,0,0,0,0,Standard
+LANG:10027 35 Arial,-1,30,5,50,0,0,0,0,0,Standard
 LANG:10011 35 Arial,-1,30,5,50,0,0,0,0,0,Standard
 LANG:10005 26 Arial,-1,13,5,50,0,0,0,0,0
-LANG:10027 26 Arial,-1,13,5,50,0,0,0,0,0
-0 3
+0 9
+LANG:10000 29 Create  CTRL Code from DPType
+LANG:10001 29 Create  CTRL Code from DPType
+LANG:10010 29 Create  CTRL Code from DPType
+LANG:10009 29 Create  CTRL Code from DPType
+LANG:10007 29 Create  CTRL Code from DPType
+LANG:10004 29 Create  CTRL Code from DPType
+LANG:10027 29 Create  CTRL Code from DPType
 LANG:10011 29 Create  CTRL Code from DPType
 LANG:10005 29 Create  CTRL Code from DPType
-LANG:10027 29 Create  CTRL Code from DPType
 2 9
 "PRIMITIVE_TEXT4"
 ""
@@ -258,10 +415,16 @@ LANG:10027 29 Create  CTRL Code from DPType
 9 0 0 0 0 0
 E E E
 0
-3
+9
+LANG:10000 0 
+LANG:10001 0 
+LANG:10010 0 
+LANG:10009 0 
+LANG:10007 0 
+LANG:10004 0 
+LANG:10027 0 
 LANG:10011 0 
 LANG:10005 0 
-LANG:10027 0 
 
 4
 "layoutAlignment" "AlignNone"
@@ -270,14 +433,26 @@ LANG:10027 0
 "transformable" "0"
 E E 0 1 3 2 1 E 0.1150793650793651 0 0.5468749999999989 29.31746031746032 54.32812500000013 0 E 34 27.0000000000001 534 87.00000000000004
 0 2 2 "0s" 0 0 0 64 0 0  34 27.0000000000001 1
-3
+9
+LANG:10000 35 Arial,-1,17,5,50,0,0,0,0,0,Standard
+LANG:10001 35 Arial,-1,17,5,50,0,0,0,0,0,Standard
+LANG:10010 35 Arial,-1,17,5,50,0,0,0,0,0,Standard
+LANG:10009 35 Arial,-1,17,5,50,0,0,0,0,0,Standard
+LANG:10007 35 Arial,-1,17,5,50,0,0,0,0,0,Standard
+LANG:10004 35 Arial,-1,17,5,50,0,0,0,0,0,Standard
+LANG:10027 35 Arial,-1,17,5,50,0,0,0,0,0,Standard
 LANG:10011 35 Arial,-1,17,5,50,0,0,0,0,0,Standard
 LANG:10005 26 Arial,-1,13,5,50,0,0,0,0,0
-LANG:10027 26 Arial,-1,13,5,50,0,0,0,0,0
-0 3
+0 9
+LANG:10000 4 Type
+LANG:10001 4 Type
+LANG:10010 4 Type
+LANG:10009 4 Type
+LANG:10007 4 Type
+LANG:10004 4 Type
+LANG:10027 4 Type
 LANG:10011 4 Type
 LANG:10005 4 Type
-LANG:10027 4 Type
 2 10
 "PRIMITIVE_TEXT5"
 ""
@@ -286,10 +461,16 @@ LANG:10027 4 Type
 10 0 0 0 0 0
 E E E
 0
-3
+9
+LANG:10000 0 
+LANG:10001 0 
+LANG:10010 0 
+LANG:10009 0 
+LANG:10007 0 
+LANG:10004 0 
+LANG:10027 0 
 LANG:10011 0 
 LANG:10005 0 
-LANG:10027 0 
 
 4
 "layoutAlignment" "AlignNone"
@@ -298,55 +479,88 @@ LANG:10027 0
 "transformable" "0"
 E E 0 1 3 2 1 E 0.1150793650793651 0 0.5468749999999989 29.08730158730159 116.234375 0 E 34 27.0000000000001 534 87.00000000000004
 0 2 2 "0s" 0 0 0 64 0 0  34 27.0000000000001 1
-3
+9
+LANG:10000 35 Arial,-1,17,5,50,0,0,0,0,0,Standard
+LANG:10001 35 Arial,-1,17,5,50,0,0,0,0,0,Standard
+LANG:10010 35 Arial,-1,17,5,50,0,0,0,0,0,Standard
+LANG:10009 35 Arial,-1,17,5,50,0,0,0,0,0,Standard
+LANG:10007 35 Arial,-1,17,5,50,0,0,0,0,0,Standard
+LANG:10004 35 Arial,-1,17,5,50,0,0,0,0,0,Standard
+LANG:10027 35 Arial,-1,17,5,50,0,0,0,0,0,Standard
 LANG:10011 35 Arial,-1,17,5,50,0,0,0,0,0,Standard
 LANG:10005 26 Arial,-1,13,5,50,0,0,0,0,0
-LANG:10027 26 Arial,-1,13,5,50,0,0,0,0,0
-0 3
+0 9
+LANG:10000 4 Code
+LANG:10001 4 Code
+LANG:10010 4 Code
+LANG:10009 4 Code
+LANG:10007 4 Code
+LANG:10004 4 Code
+LANG:10027 4 Code
 LANG:10011 4 Code
 LANG:10005 4 Code
-LANG:10027 4 Code
 0
 LAYER, 1 
-3
-LANG:10011 0 
-LANG:10005 0 
-LANG:10027 0 
+6
+LANG:10000 0 
+LANG:10001 0 
+LANG:10010 0 
+LANG:10009 0 
+LANG:10007 0 
+LANG:10004 0 
 0
 LAYER, 2 
-3
-LANG:10011 0 
-LANG:10005 0 
-LANG:10027 0 
+6
+LANG:10000 0 
+LANG:10001 0 
+LANG:10010 0 
+LANG:10009 0 
+LANG:10007 0 
+LANG:10004 0 
 0
 LAYER, 3 
-3
-LANG:10011 0 
-LANG:10005 0 
-LANG:10027 0 
+6
+LANG:10000 0 
+LANG:10001 0 
+LANG:10010 0 
+LANG:10009 0 
+LANG:10007 0 
+LANG:10004 0 
 0
 LAYER, 4 
-3
-LANG:10011 0 
-LANG:10005 0 
-LANG:10027 0 
+6
+LANG:10000 0 
+LANG:10001 0 
+LANG:10010 0 
+LANG:10009 0 
+LANG:10007 0 
+LANG:10004 0 
 0
 LAYER, 5 
-3
-LANG:10011 0 
-LANG:10005 0 
-LANG:10027 0 
+6
+LANG:10000 0 
+LANG:10001 0 
+LANG:10010 0 
+LANG:10009 0 
+LANG:10007 0 
+LANG:10004 0 
 0
 LAYER, 6 
-3
-LANG:10011 0 
-LANG:10005 0 
-LANG:10027 0 
+6
+LANG:10000 0 
+LANG:10001 0 
+LANG:10010 0 
+LANG:10009 0 
+LANG:10007 0 
+LANG:10004 0 
 0
 LAYER, 7 
-3
-LANG:10011 0 
-LANG:10005 0 
-LANG:10027 0 
+6
+LANG:10000 0 
+LANG:10001 0 
+LANG:10010 0 
+LANG:10009 0 
+LANG:10007 0 
+LANG:10004 0 
 0
 0
